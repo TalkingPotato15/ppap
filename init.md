@@ -4,8 +4,9 @@
 
 A multi-agent AI system that helps developers build startups by:
 1. **Finding real market problems** (from actual data, not guesses)
-2. **Generating viable business ideas** (validated against market trends)
+2. **Generating AI agent project ideas** (validated against market trends)
 
+**Focus**: All generated ideas are AI agent-based solutions
 **Target domains**: Investment, Education, Real Estate (high-value markets)
 
 ---
@@ -25,7 +26,7 @@ A multi-agent AI system that helps developers build startups by:
 ```
 Google Trends Collector → Background job: fetches trending topics periodically
 Gemini Deep Research   → Real-time market research based on user query
-Agent B: Strategic Planner → Generates business ideas from research results
+Agent B: Strategic Planner → Generates AI agent project ideas from research results
 ```
 
 ### Two-Stage User Flow
@@ -44,9 +45,9 @@ STAGE A: Search (User starts here - Google-like UI)
    └─ Returns: trends, problems, opportunities, competitor analysis
 
 STAGE B: Ideation (Research complete)
-└─ Agent B generates 3-5 business ideas
+└─ Agent B generates 3-5 AI agent project ideas
    ├─ Input: Gemini Deep Research results
-   ├─ Each idea includes: revenue model, risks, value prop
+   ├─ Each idea: AI agent solution with revenue model, risks, value prop
    └─ User reviews and picks one
 ```
 
@@ -111,19 +112,22 @@ STAGE B: Ideation (Research complete)
 ---
 
 ### Agent B: Strategic Planner (Stage B)
-**Role**: Generate business ideas from research results
+**Role**: Generate AI agent project ideas from research results
 
 **Input**:
 - Gemini Deep Research output
 - User's original query context
 
+**Constraint**: All generated ideas must be AI agent-based solutions
+
 **Process**:
 1. Analyze research findings for viable opportunities
 2. Validate market opportunity (demand signals, competition gaps)
-3. Generate 3-5 solution concepts
+3. Generate 3-5 AI agent solution concepts
 
-**Output**: Business idea cards with:
+**Output**: AI Agent idea cards with:
 - Core value proposition
+- AI agent architecture overview
 - Revenue model
 - Key risks
 - Market fit score
@@ -263,7 +267,8 @@ pytest tests/
 
 ## Key Differentiators
 
+- **AI Agent focused**: All ideas are AI agent-based project solutions
 - **Google-like simplicity**: Single search bar, minimal UI
 - **"Got no Clue?" discovery**: One-click access to trending topic ideas
 - **Real-time research**: Gemini Deep Research fetches live market data
-- **Research to Ideation**: Market research → Business ideas in one flow
+- **Research to Ideation**: Market research → AI agent project ideas in one flow
