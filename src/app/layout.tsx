@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AI Agent Business Builder",
-  description: "Find real market problems and generate AI agent project ideas",
+  description: "Discover AI agent startup ideas based on real market data",
 };
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="en">
       <body className="antialiased">{children}</body>
     </html>
   );

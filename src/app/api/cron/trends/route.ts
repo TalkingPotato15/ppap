@@ -1,43 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTrendsService } from "@/lib/trends";
+import { fetchDailyTrends, saveTrendsToDatabase } from "@/lib/trends";
 
-/**
- * GET /api/cron/trends
- * 002 spec - Vercel Cron Job으로 주기적 트렌드 수집
- */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export const dynamic = "force-dynamic";
+
+export async function GET(request: NextRequest) {
+  // Verify cron secret for security
+  const authHeader = request.headers.get("authorization");
+  const cronSecret = process.env.CRON_SECRET;
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    // Vercel Cron 인증 체크
-    const authHeader = request.headers.get("authorization");
-    const cronSecret = process.env.CRON_SECRET;
+    console.log("Starting trends collection...");
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      console.log("[Cron /trends] Unauthorized request");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const trends = await fetchDailyTrends("US");
+    console.log(`Fetched ${trends.length} trending topics`);
+
+    if (trends.length > 0) {
+      await saveTrendsToDatabase(trends);
+      console.log("Trends saved to database");
     }
-
-    console.log("[Cron /trends] Starting scheduled collection...");
-
-    const service = getTrendsService();
-    const collection = await service.collectTrends();
-
-    console.log(
-      `[Cron /trends] Collection completed: ${collection.topics.length} topics`
-    );
 
     return NextResponse.json({
       success: true,
-      message: `Collected ${collection.topics.length} trending topics`,
-      collectedAt: collection.collectedAt,
+      collected: trends.length,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("[Cron /trends] Error:", error);
-
+    console.error("Cron job failed:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Collection failed",
-      },
+      { error: "Failed to collect trends" },
       { status: 500 }
     );
   }

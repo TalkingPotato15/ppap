@@ -3,7 +3,7 @@
   "projectName": "ppap",
   "version": "1.0",
   "createdAt": "2026-01-14T03:28:09.028Z",
-  "updatedAt": "2026-01-14T14:50:00.000Z",
+  "updatedAt": "2026-01-14T14:25:00.000Z",
   "currentPhase": "implement",
   "phases": {
     "constitute": {
@@ -30,10 +30,9 @@
       "startedAt": "2026-01-14T14:00:00.000Z",
       "completedAt": null,
       "tasks": {
-        "T001": "completed",
-        "T002": "completed",
-        "T005": "completed",
-        "T006": "completed"
+        "completed": ["T001", "T002", "T003", "T004", "T005", "T006", "T007", "T008", "T009", "T010", "T011"],
+        "pending": ["T012"],
+        "progress": "91%"
       }
     }
   }

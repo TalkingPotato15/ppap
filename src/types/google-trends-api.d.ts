@@ -1,37 +1,32 @@
 declare module "google-trends-api" {
-  interface DailyTrendsOptions {
-    trendDate?: Date;
+  interface TrendsOptions {
     geo?: string;
+    hl?: string;
+    timezone?: number;
     category?: number;
   }
 
-  interface InterestOverTimeOptions {
+  interface InterestOverTimeOptions extends TrendsOptions {
     keyword: string | string[];
     startTime?: Date;
     endTime?: Date;
-    geo?: string;
-    category?: number;
   }
 
-  interface RelatedQueriesOptions {
-    keyword: string | string[];
-    startTime?: Date;
-    endTime?: Date;
-    geo?: string;
-    category?: number;
-  }
+  export function dailyTrends(options?: TrendsOptions): Promise<string>;
+  export function realTimeTrends(options?: TrendsOptions): Promise<string>;
+  export function interestOverTime(options: InterestOverTimeOptions): Promise<string>;
+  export function interestByRegion(options: InterestOverTimeOptions): Promise<string>;
+  export function relatedQueries(options: InterestOverTimeOptions): Promise<string>;
+  export function relatedTopics(options: InterestOverTimeOptions): Promise<string>;
 
-  export function dailyTrends(options: DailyTrendsOptions): Promise<string>;
-  export function interestOverTime(
-    options: InterestOverTimeOptions
-  ): Promise<string>;
-  export function relatedQueries(
-    options: RelatedQueriesOptions
-  ): Promise<string>;
-  export function interestByRegion(
-    options: InterestOverTimeOptions
-  ): Promise<string>;
-  export function relatedTopics(
-    options: RelatedQueriesOptions
-  ): Promise<string>;
+  const googleTrends: {
+    dailyTrends: typeof dailyTrends;
+    realTimeTrends: typeof realTimeTrends;
+    interestOverTime: typeof interestOverTime;
+    interestByRegion: typeof interestByRegion;
+    relatedQueries: typeof relatedQueries;
+    relatedTopics: typeof relatedTopics;
+  };
+
+  export default googleTrends;
 }

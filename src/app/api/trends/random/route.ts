@@ -1,46 +1,24 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getTrendsService } from "@/lib/trends";
-import type { ApiResponse, RandomTrendResponse } from "@/types";
+import { NextResponse } from "next/server";
+import { getRandomTrendingTopic } from "@/lib/trends";
 
-/**
- * GET /api/trends/random
- * 002 spec - 랜덤 트렌딩 토픽 1개 반환 ("Got no Clue?" 버튼용)
- */
-export async function GET(
-  request: NextRequest
-): Promise<NextResponse<ApiResponse<RandomTrendResponse>>> {
+export const dynamic = "force-dynamic";
+
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category") || undefined;
-
-    const service = getTrendsService();
-    const topic = await service.getRandomTopic(category);
+    const topic = await getRandomTrendingTopic();
 
     if (!topic) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "No trending topics available",
-        },
+        { error: "No trending topics available" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        topic,
-        collectedAt: topic.collectedAt,
-      },
-    });
+    return NextResponse.json({ topic });
   } catch (error) {
-    console.error("[API /trends/random] Error:", error);
-
+    console.error("Failed to get random topic:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to fetch random trend",
-      },
+      { error: "Failed to fetch trending topic" },
       { status: 500 }
     );
   }
