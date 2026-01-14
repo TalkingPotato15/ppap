@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchDailyTrends, saveTrendsToDatabase } from "@/lib/trends";
+import { collectAndSaveAllTrends, SUPPORTED_REGIONS } from "@/lib/trends";
 
 export const dynamic = "force-dynamic";
 
@@ -13,19 +13,15 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log("Starting trends collection...");
+    console.log("Starting trends collection from all regions...");
 
-    const trends = await fetchDailyTrends("US");
-    console.log(`Fetched ${trends.length} trending topics`);
-
-    if (trends.length > 0) {
-      await saveTrendsToDatabase(trends);
-      console.log("Trends saved to database");
-    }
+    const count = await collectAndSaveAllTrends();
+    console.log(`Collected ${count} trending topics from ${SUPPORTED_REGIONS.length} regions`);
 
     return NextResponse.json({
       success: true,
-      collected: trends.length,
+      collected: count,
+      regions: SUPPORTED_REGIONS,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

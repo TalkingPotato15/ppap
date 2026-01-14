@@ -5,7 +5,13 @@ export interface TrendingTopic {
   name: string;
   rank: number;
   category?: string;
+  relatedQueries?: string[];
+  traffic?: string;
 }
+
+// Supported regions for trend collection
+export const SUPPORTED_REGIONS = ["US", "KR", "JP", "GB", "DE", "FR", "BR", "IN"] as const;
+export type SupportedRegion = (typeof SUPPORTED_REGIONS)[number];
 
 export async function fetchDailyTrends(geo: string = "US"): Promise<TrendingTopic[]> {
   try {
@@ -17,19 +23,47 @@ export async function fetchDailyTrends(geo: string = "US"): Promise<TrendingTopi
 
     for (const day of days) {
       const searches = day.trendingSearches || [];
-      searches.forEach((search: { title: { query: string } }, index: number) => {
-        topics.push({
-          name: search.title.query,
-          rank: index + 1,
-        });
-      });
+      searches.forEach(
+        (
+          search: {
+            title: { query: string };
+            formattedTraffic?: string;
+            relatedQueries?: { query: string }[];
+          },
+          index: number
+        ) => {
+          topics.push({
+            name: search.title.query,
+            rank: index + 1,
+            category: geo, // Store region as category
+            traffic: search.formattedTraffic,
+            relatedQueries: search.relatedQueries?.map((q) => q.query) || [],
+          });
+        }
+      );
     }
 
-    return topics.slice(0, 20); // Top 20 trends
+    return topics; // Return all trends (no limit)
   } catch (error) {
-    console.error("Failed to fetch Google Trends:", error);
+    console.error(`Failed to fetch Google Trends for ${geo}:`, error);
     return [];
   }
+}
+
+// Fetch trends from multiple regions
+export async function fetchTrendsFromAllRegions(): Promise<TrendingTopic[]> {
+  const allTopics: TrendingTopic[] = [];
+
+  for (const region of SUPPORTED_REGIONS) {
+    console.log(`Fetching trends for ${region}...`);
+    const topics = await fetchDailyTrends(region);
+    allTopics.push(...topics);
+    // Small delay to avoid rate limiting
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  console.log(`Total topics collected: ${allTopics.length}`);
+  return allTopics;
 }
 
 export async function saveTrendsToDatabase(topics: TrendingTopic[]): Promise<void> {
@@ -39,15 +73,33 @@ export async function saveTrendsToDatabase(topics: TrendingTopic[]): Promise<voi
     topic_name: topic.name,
     rank: topic.rank,
     category: topic.category || null,
+    related_queries: topic.relatedQueries || [],
+    traffic: topic.traffic || null,
     collected_at: new Date().toISOString(),
   }));
 
-  const { error } = await supabase.from("trending_topics").insert(records);
+  // Insert in batches to avoid hitting limits
+  const BATCH_SIZE = 100;
+  for (let i = 0; i < records.length; i += BATCH_SIZE) {
+    const batch = records.slice(i, i + BATCH_SIZE);
+    const { error } = await supabase.from("trending_topics").insert(batch);
 
-  if (error) {
-    console.error("Failed to save trends:", error);
-    throw error;
+    if (error) {
+      console.error(`Failed to save trends batch ${i / BATCH_SIZE + 1}:`, error);
+      throw error;
+    }
   }
+
+  console.log(`Saved ${records.length} trends to database`);
+}
+
+// Save trends from all regions at once
+export async function collectAndSaveAllTrends(): Promise<number> {
+  const topics = await fetchTrendsFromAllRegions();
+  if (topics.length > 0) {
+    await saveTrendsToDatabase(topics);
+  }
+  return topics.length;
 }
 
 export async function getRandomTrendingTopic(): Promise<string | null> {
