@@ -71,6 +71,88 @@ export interface Database {
         };
         Relationships: [];
       };
+      generation_sessions: {
+        Row: {
+          id: string;
+          status: "PENDING" | "GENERATING" | "COMPLETED" | "FAILED";
+          query: string;
+          feedback: string | null;
+          error_message: string | null;
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          status?: "PENDING" | "GENERATING" | "COMPLETED" | "FAILED";
+          query: string;
+          feedback?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          status?: "PENDING" | "GENERATING" | "COMPLETED" | "FAILED";
+          query?: string;
+          feedback?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: [];
+      };
+      ai_agent_ideas: {
+        Row: {
+          id: string;
+          session_id: string;
+          title: string;
+          description: string;
+          value_proposition: string;
+          agent_architecture: Json;
+          target_audience: string;
+          revenue_model: Json;
+          key_risks: string[];
+          market_fit_score: number;
+          implementation_hints: string[];
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          title: string;
+          description: string;
+          value_proposition: string;
+          agent_architecture: Json;
+          target_audience: string;
+          revenue_model: Json;
+          key_risks: string[];
+          market_fit_score: number;
+          implementation_hints: string[];
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          session_id?: string;
+          title?: string;
+          description?: string;
+          value_proposition?: string;
+          agent_architecture?: Json;
+          target_audience?: string;
+          revenue_model?: Json;
+          key_risks?: string[];
+          market_fit_score?: number;
+          implementation_hints?: string[];
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ai_agent_ideas_session_id_fkey";
+            columns: ["session_id"];
+            referencedRelation: "generation_sessions";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -94,3 +176,5 @@ export interface ResearchResultJson {
 // Row types for convenience
 export type TrendingTopicRow = Database["public"]["Tables"]["trending_topics"]["Row"];
 export type ResearchCacheRow = Database["public"]["Tables"]["research_cache"]["Row"];
+export type GenerationSessionRow = Database["public"]["Tables"]["generation_sessions"]["Row"];
+export type AIAgentIdeaRow = Database["public"]["Tables"]["ai_agent_ideas"]["Row"];

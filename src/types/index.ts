@@ -90,3 +90,64 @@ export const CATEGORY_CODES: Record<string, number> = {
 } as const;
 
 export type CategoryType = keyof typeof CATEGORY_CODES;
+
+// ============================================
+// 003 - AI Agent Ideation Types
+// ============================================
+
+export type GenerationStatus = "PENDING" | "GENERATING" | "COMPLETED" | "FAILED";
+
+export interface IdeaGenerationRequest {
+  researchResult: ResearchResult;
+  originalQuery: string;
+  feedback?: string;
+}
+
+export interface AgentArchitecture {
+  agentType: "single" | "multi" | "hierarchical";
+  coreCapabilities: string[];
+  dataSources: string[];
+  integrationPoints: string[];
+  techStackSuggestion: string[];
+}
+
+export interface RevenueModel {
+  modelType: string;  // SaaS, API, Freemium 등
+  pricingStrategy: string;
+  targetMrr?: string;
+}
+
+export interface AIAgentIdea {
+  id: string;
+  title: string;
+  description: string;
+  valueProposition: string;
+  agentArchitecture: AgentArchitecture;
+  targetAudience: string;
+  revenueModel: RevenueModel;
+  keyRisks: string[];
+  marketFitScore: number;  // 1-10
+  implementationHints: string[];
+  createdAt: string;
+}
+
+export interface GenerationSession {
+  id: string;
+  status: GenerationStatus;
+  query: string;
+  ideas: AIAgentIdea[];
+  feedback?: string;
+  errorMessage?: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface GenerateIdeasResponse {
+  sessionId: string;
+  status: GenerationStatus;
+  message: string;
+}
+
+export interface RegenerateRequest {
+  feedback: string;
+}
