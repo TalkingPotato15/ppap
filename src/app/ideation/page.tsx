@@ -80,7 +80,7 @@ function IdeationContent() {
   if (stage === "research" && !research) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner message="Researching market data with Gemini..." />
+        <LoadingSpinner message="Analyzing market trends..." />
       </div>
     );
   }

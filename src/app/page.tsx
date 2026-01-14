@@ -29,7 +29,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6">
+    <main className="flex min-h-screen flex-col items-center pt-[30vh] p-6">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">
           AI Agent Business Builder
