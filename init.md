@@ -55,32 +55,36 @@ STAGE B: Ideation (Research complete)
 
 ## Tech Stack
 
+### Platform
+- **Vercel**: Frontend hosting, API routes (Edge Functions)
+- **Supabase**: PostgreSQL database, Auth, Edge Functions
+
 ### Data Layer
 - **Google Trends API**: Fetches trending topics periodically
-- **Cache/DB**: Stores trending topics list
+- **Supabase PostgreSQL**: Stores trending topics, research cache
 
 ### Processing Layer
 - **Gemini API**: Deep Research for real-time market analysis
 - **LLM (Agent B)**: Business idea generation from research data
 
 ### Service Layer
-- **API Gateway**: Request routing
-- **Scheduler**: Periodic Google Trends data collection
+- **Vercel API Routes**: Request routing
+- **Supabase Edge Functions / Vercel Cron**: Periodic Google Trends data collection
 
 ### Client Layer
-- **Web/App**: Google-like search UI with "Got no Clue?" button
+- **Next.js (Vercel)**: Google-like search UI with "Got no Clue?" button
 
 ---
 
 ## Component Details
 
 ### Google Trends Collector (Background)
-**Role**: Periodically fetch and store trending topics
+**Role**: Weekly fetch and store trending topics
 
 **Process**:
-1. Scheduled job runs every N hours
+1. Scheduled job runs once per week (Vercel Cron)
 2. Fetches trending topics from Google Trends API
-3. Stores ranked list in cache/DB
+3. Stores ranked list in Supabase
 
 **Output**: List of trending topics with:
 - Topic name
@@ -190,36 +194,37 @@ User → Click "Got no Clue?" button
 ## Project Structure (Recommended)
 
 ```
-/project-root
-├── /agents
-│   └── strategist.py       # Agent B: Business idea generation
-├── /services
-│   ├── gemini_service.py   # Gemini Deep Research API wrapper
-│   ├── trends_service.py   # Google Trends API wrapper
-│   └── llm_service.py      # LLM API wrapper for Agent B
-├── /jobs
-│   └── trends_collector.py # Scheduled job for Google Trends
-├── /api
-│   ├── /routes
-│   │   ├── search.py       # Stage A: Search endpoint
-│   │   ├── trends.py       # Trending topics endpoint
-│   │   └── ideation.py     # Stage B: Ideation endpoint
-│   └── gateway.py          # API Gateway
-├── /client
-│   ├── /components
-│   │   ├── SearchBar.tsx   # Google-like search input
-│   │   ├── GotNoClueButton.tsx  # Random trend selector
-│   │   ├── ResearchSummary.tsx
-│   │   └── IdeaCard.tsx
-│   └── /pages
-│       ├── search.tsx      # Stage A: Search UI
-│       └── ideation.tsx    # Stage B: Results UI
-├── /tests
-│   ├── test_gemini.py
-│   ├── test_trends.py
-│   ├── test_agents.py
-│   └── test_api.py
-└── README.md
+/project-root (Next.js on Vercel)
+├── /app
+│   ├── page.tsx              # Stage A: Search UI (Google-like)
+│   ├── /ideation
+│   │   └── page.tsx          # Stage B: Results UI
+│   └── /api
+│       ├── /search
+│       │   └── route.ts      # Stage A: Search endpoint
+│       ├── /trends
+│       │   └── route.ts      # Trending topics endpoint
+│       └── /ideation
+│           └── route.ts      # Stage B: Ideation endpoint
+├── /components
+│   ├── SearchBar.tsx         # Google-like search input
+│   ├── GotNoClueButton.tsx   # Random trend selector
+│   ├── ResearchSummary.tsx
+│   └── IdeaCard.tsx
+├── /lib
+│   ├── gemini.ts             # Gemini Deep Research API wrapper
+│   ├── trends.ts             # Google Trends API wrapper
+│   ├── agent-b.ts            # Agent B: Business idea generation
+│   └── supabase.ts           # Supabase client
+├── /supabase
+│   ├── /functions
+│   │   └── trends-collector  # Scheduled job for Google Trends
+│   └── /migrations           # Database schema
+├── /__tests__
+│   ├── gemini.test.ts
+│   ├── trends.test.ts
+│   └── agent-b.test.ts
+└── vercel.json               # Cron job config (optional)
 ```
 
 ---
@@ -245,22 +250,25 @@ User → Click "Got no Clue?" button
 
 ```bash
 # Setup
-pip install -r requirements.txt
+npm install
 
-# Set API keys
-export GEMINI_API_KEY=your_gemini_api_key
+# Set environment variables (.env.local)
+GEMINI_API_KEY=your_gemini_api_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-# Run Google Trends collector (background job)
-python jobs/trends_collector.py
+# Run Supabase locally (optional)
+npx supabase start
 
-# Start API server
-python api/gateway.py
-
-# Start client
-cd client && npm run dev
+# Start dev server
+npm run dev
 
 # Run tests
-pytest tests/
+npm test
+
+# Deploy to Vercel
+vercel deploy
 ```
 
 ---
