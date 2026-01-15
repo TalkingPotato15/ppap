@@ -6,9 +6,11 @@ import {
   LoadingSpinner,
   ResearchSummary,
   IdeaCard,
+  ImplementationResources,
   ResearchData,
   IdeaData,
 } from "@/components";
+import type { ImplementationResources as IResources } from "@/types";
 
 function IdeationContent() {
   const searchParams = useSearchParams();
@@ -19,6 +21,11 @@ function IdeationContent() {
   const [research, setResearch] = useState<ResearchData | null>(null);
   const [ideas, setIdeas] = useState<IdeaData[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Implementation Resources state
+  const [resources, setResources] = useState<IResources | null>(null);
+  const [generatingIdeaId, setGeneratingIdeaId] = useState<string | null>(null);
+  const [resourcesError, setResourcesError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!query) {
@@ -60,6 +67,43 @@ function IdeationContent() {
 
     runPipeline();
   }, [query, router]);
+
+  // Handler for generating implementation resources
+  const handleGenerateResources = async (ideaId: string) => {
+    setGeneratingIdeaId(ideaId);
+    setResourcesError(null);
+
+    try {
+      const response = await fetch(`/api/ideation/resources/${ideaId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate resources");
+      }
+
+      const data = await response.json();
+      if (data.success && data.data?.resources) {
+        setResources(data.data.resources);
+      } else {
+        throw new Error(data.error || "Invalid response");
+      }
+    } catch (err) {
+      console.error("Resource generation error:", err);
+      setResourcesError(
+        err instanceof Error ? err.message : "Failed to generate resources"
+      );
+    } finally {
+      setGeneratingIdeaId(null);
+    }
+  };
+
+  // Close resources modal
+  const handleCloseResources = () => {
+    setResources(null);
+  };
 
   if (error) {
     return (
@@ -114,12 +158,34 @@ function IdeationContent() {
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             AI Agent Ideas ({ideas.length})
           </h2>
+
+          {/* Resources Error Message */}
+          {resourcesError && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{resourcesError}</p>
+            </div>
+          )}
+
           <div className="grid gap-4">
             {ideas.map((idea, idx) => (
-              <IdeaCard key={idea.id} idea={idea} index={idx} />
+              <IdeaCard
+                key={idea.id}
+                idea={idea}
+                index={idx}
+                onGenerateResources={handleGenerateResources}
+                isGeneratingResources={generatingIdeaId === idea.id}
+              />
             ))}
           </div>
         </section>
+      )}
+
+      {/* Implementation Resources Modal */}
+      {resources && (
+        <ImplementationResources
+          resources={resources}
+          onClose={handleCloseResources}
+        />
       )}
     </main>
   );

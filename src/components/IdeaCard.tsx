@@ -16,9 +16,16 @@ export interface IdeaData {
 interface IdeaCardProps {
   idea: IdeaData;
   index: number;
+  onGenerateResources?: (ideaId: string) => void;
+  isGeneratingResources?: boolean;
 }
 
-export default function IdeaCard({ idea, index }: IdeaCardProps) {
+export default function IdeaCard({
+  idea,
+  index,
+  onGenerateResources,
+  isGeneratingResources = false,
+}: IdeaCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
@@ -62,6 +69,47 @@ export default function IdeaCard({ idea, index }: IdeaCardProps) {
           <InfoRow label="MVP Scope" value={idea.mvpScope} />
         </div>
       </div>
+
+      {/* Generate Resources Button */}
+      {onGenerateResources && (
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <button
+            onClick={() => onGenerateResources(idea.id)}
+            disabled={isGeneratingResources}
+            className={`
+              w-full py-2 px-4 rounded-md text-sm font-medium transition-colors
+              ${
+                isGeneratingResources
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }
+            `}
+          >
+            {isGeneratingResources ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                    opacity="0.25"
+                  />
+                  <path
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Generating Resources...
+              </span>
+            ) : (
+              "Generate Implementation Resources"
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
