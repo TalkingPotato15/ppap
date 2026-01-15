@@ -3,5 +3,7 @@ export { default as GotNoClueButton } from "./GotNoClueButton";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as ResearchSummary } from "./ResearchSummary";
 export { default as IdeaCard } from "./IdeaCard";
+export { default as CodeBlock } from "./CodeBlock";
+export { default as ImplementationResources } from "./ImplementationResources";
 export type { ResearchData } from "./ResearchSummary";
 export type { IdeaData } from "./IdeaCard";
